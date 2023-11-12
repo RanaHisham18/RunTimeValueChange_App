@@ -1,6 +1,8 @@
 package com.example.runtimevaluechangeapp
 
 import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.runtimevaluechangeapp.databinding.ActivityMainBinding
@@ -16,17 +18,23 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         val sharedPref = getSharedPreferences("ranaPref", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
-       // val data = binding.editText.text.toString()
+        binding.textView.text = getVersionName()
         binding.button.setOnClickListener {
             val data = binding.editText.text.toString()
 
             editor.putString("version", data)
             editor.apply()
 
-            binding.textView.text = sharedPref.getString("version", "This is the default value")
+            binding.textView.text = sharedPref.getString("version", getVersionName())
         }
+    }
 
-
-
+    private fun getVersionName(): String {
+        return try {
+            val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
+            packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            "Unknown Version"
+        }
     }
 }
